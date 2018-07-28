@@ -1,30 +1,13 @@
-PythonStautsBarShowSymbol
+StatusBarSymbols
 =========================
 
-When edit a long python file, and the file contains more than one class, you may need to know the code under current cursor belongs to which the class, so this plug-in is displayed class name and function name in the statusbar.
-like this:
--------->def testclass-->def testfunc
+A sublime text 3 plugin that shows the symbol name from your source code in the sublime statusbar depending on the cursor position.
 
-and,this plugin cando navigete backward or navigate forward like visual studio function.
+StatusBarSymbols curently only supports files with the Python syntax but more language syntax are coming.
 
+StatusBarSymbols smartly displays the symbol of the method or class that your cursor is positioned at.
 
+![Unit Class](https://github.com/OdinTech3/StatusBarSymbols/blob/assets/unit_class.png?raw=true)<br />
+![Sublime Status Bar](https://github.com/OdinTech3/StatusBarSymbols/blob/assets/status_bar.png?raw=true)
 
-In the statusbar displays the code under the cursor where the names of functions and classes.<br />
-在状态栏显示当前光标下的代码所在的函数和类名字.
-<br/>
-
-例如 eg.：<br />
----------------------------------------------------------------- <br />
-\| UTF-8, 3 matches    --------\>class test-\>def testFunc <br />
----------------------------------------------------------------- <br />
-
-
-addtion:<br />
-附加功能： <br />
-类似VS的 navagate forward - backward<br />
-ctrl+alt+u 回退前一个位置 navagate backward<br />
-ctrl+alt+i 前进一个位置 navagate forward<br />
-
-
-donate 捐助:<br />
-https://scriptkitz.github.io/PythonStautsBarShowSymbol/donate.html<br />
+This project was inspired by the work from [scriptkitz](https://github.com/scriptkitz).
