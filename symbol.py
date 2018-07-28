@@ -1,64 +1,106 @@
-# -*- coding:utf-8 -*-
+# -*- coding: utf-8 -*-
 import sublime
 import sublime_plugin
 import re
-import functools
-import os
+from collections import deque
 
 
-class BackgroundShowPythonIndentName(sublime_plugin.EventListener):
-    """ Process Sublime Text events """
+def is_python_syntax(view):
+    # type: (sublime.View) -> bool
+    syntax = view.settings().get('syntax')
+
+    return 'python' in syntax.lower()
+
+
+class StatusSymbol(sublime_plugin.EventListener):
+    def __init__(self, *args, **kwargs):
+        self.symbolname_regex_1 = re.compile(r'^(class\s*(\w+):?)')
+        self.symbolname_regex_2 = re.compile(r'^((\w+)(\((\w*.?\w*)\))*:?)')
+
+        super().__init__(*args, **kwargs)
 
     def on_selection_modified(self, view):
-        global posHistory, lastLine, prevHistory
-        syntax = view.settings().get('syntax')
-        if syntax.lower().find('python') == -1:
-            return
-        s = view.sel()
-        if s[0].a != s[0].b:
-            return
-        cursorX = s[0].b
 
-        symList = []
-        symbols = view.get_symbols()
-        lastIndex = len(symbols) - 1
-        for i, symbol in enumerate(symbols):
-            rng, line = symbol
-            if rng.a > cursorX:
-                lastIndex = i - 1
-                break
-        indent = -1
-        for i in range(lastIndex, -1, -1):
-            rng, line = symbols[i]
-            if indent == -1:
-                indent = self._getIndent(line)
-            else:
-                c = self._getIndent(line)
-                if indent <= c:
-                    continue
-                indent = c
-            symList.append(line)
-            if indent == 0:
-                break
-        symList.reverse()
-        rs = None
-        if (sublime.version()[0] == '3'):
-            rs = re.compile(r'\s*(\w*)')
+        if not is_python_syntax(view):
+            return
+
+        selection = view.sel()  # type: sublime.Selection[sublime.Region]
+        sel_end_region = selection[0].b  # type: int
+        symbols = view.symbols()  # type: [(sublime.Region, str)]
+        desired_symbols = [
+            symbol for symbol in symbols
+            if self.in_region(symbol, sel_end_region)
+        ]
+
+        if not desired_symbols:
+            return
+
+        desired_symbols.reverse()
+
+        target_symbol = desired_symbols.pop(0)
+        symbol_path = deque()
+        _, target_line = target_symbol
+
+        if self.has_index(target_symbol):
+            if self._is_child_symbol(target_symbol):
+                target_indent = self.get_indent(target_line)
+
+                for region, line in desired_symbols:
+                    curr_indent = self.get_indent(line)
+
+                    if curr_indent == 0:
+                        symbol_path.appendleft(line.strip())
+                        break
+                    elif curr_indent < target_indent:
+                        symbol_path.appendleft(line.strip())
+
+                    target_indent = curr_indent
+
+            symbol_path.append(target_line.strip())
+
+            symbol_names = [self._get_symbolname(line) for line in symbol_path]
+            target_name = symbol_names.pop()
+
+            symbol_names.append(self._highlight_target(target_name))
+
+            sublime.status_message('[ {} ]'.format(self._format_symbolnames(symbol_names)))
         else:
-            rs = re.compile(r'\s*(def|class)\s+(\w*)')
-        strs = ["---------------------"]
-        for s in symList:
-            m = rs.match(s)
-            if m:
-                strs.append(m.group(0).strip())
-        if len(strs) > 1:
-            sublime.status_message('->'.join(strs))
+            sublime.status_message('[ ( {} ) ]'.format(self._get_symbolname(target_line)))
 
-    def _getIndent(self, line):
-        c = 0
-        for s in line:
-            if s in (" ", "\t"):
-                c += 1
-            else:
-                break
-        return c
+    def in_region(self, symbol, end_region):
+        region, _ = symbol
+        start_region = region.a
+
+        return end_region > start_region
+
+    def get_indent(self, line_str):
+        # type: (str) -> int
+        return len(line_str) - len(line_str.lstrip())
+
+    def has_index(self, symbol):
+        # type: (tuple(sublime.Region, str)) -> bool
+        _, line = symbol
+
+        return self.get_indent(line) > 0
+
+    def _is_child_symbol(self, symbol):
+        # type: (tuple(sublime.Region, str)) -> bool
+        _, line = symbol
+
+        return self.get_indent(line) > 0
+
+    def _get_symbolname(self, line):
+        # type: (str) -> str
+        if 'class' in line:
+            match = self.symbolname_regex_1.match(line)
+        else:
+            match = self.symbolname_regex_2.match(line)
+
+        return match.group(2) if match is not None else 'Unknown'
+
+    def _highlight_target(self, symbol_name):
+        return '( {} )'.format(symbol_name)
+
+    def _format_symbolnames(self, symbol_path):
+        # type: (List[str]) -> str
+        return '->'.join(symbol_path)
