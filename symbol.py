@@ -42,19 +42,18 @@ class StatusSymbol(sublime_plugin.EventListener):
         _, target_line = target_symbol
 
         if self.has_index(target_symbol):
-            if self._is_child_symbol(target_symbol):
-                target_indent = self.get_indent(target_line)
+            target_indent = self.get_indent(target_line)
 
-                for region, line in desired_symbols:
-                    curr_indent = self.get_indent(line)
+            for region, line in desired_symbols:
+                curr_indent = self.get_indent(line)
 
-                    if curr_indent == 0:
-                        symbol_path.appendleft(line.strip())
-                        break
-                    elif curr_indent < target_indent:
-                        symbol_path.appendleft(line.strip())
+                if curr_indent == 0:
+                    symbol_path.appendleft(line.strip())
+                    break
+                elif curr_indent < target_indent:
+                    symbol_path.appendleft(line.strip())
 
-                    target_indent = curr_indent
+                target_indent = curr_indent
 
             symbol_path.append(target_line.strip())
 
@@ -83,12 +82,6 @@ class StatusSymbol(sublime_plugin.EventListener):
 
         return self.get_indent(line) > 0
 
-    def _is_child_symbol(self, symbol):
-        # type: (tuple(sublime.Region, str)) -> bool
-        _, line = symbol
-
-        return self.get_indent(line) > 0
-
     def _get_symbolname(self, line):
         # type: (str) -> str
         if 'class' in line:
@@ -103,4 +96,4 @@ class StatusSymbol(sublime_plugin.EventListener):
 
     def _format_symbolnames(self, symbol_path):
         # type: (List[str]) -> str
-        return '->'.join(symbol_path)
+        return ' ↦ '.join(symbol_path)
