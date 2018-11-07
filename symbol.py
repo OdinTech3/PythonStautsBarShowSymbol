@@ -25,88 +25,92 @@ def get_syntax(view):  # type: (sublime.View) -> str
     return syntax
 
 
-class StatusSymbol(sublime_plugin.EventListener):
-    def __init__(self, *args, **kwargs):
-        self.symbolname_regex_1 = re.compile(r'^(class\s*(\w+):?)')
-        self.symbolname_regex_2 = re.compile(r'^((\w+)(\((\w*.?\w*)\))*:?)')
+class StatusSymbol():
+    SYNTAX_NAME = 'NA'
 
-        super().__init__(*args, **kwargs)
-
-    def on_selection_modified(self, view):
-
-        if not is_python_syntax(view):
-            return
-
+    def get_desired_symbols(self, view):  # type: (sublime.View) -> List[Tuple[sublime.Region, str]]
         selection = view.sel()  # type: sublime.Selection[sublime.Region]
         sel_end_region = selection[0].b  # type: int
-        symbols = view.symbols()  # type: [(sublime.Region, str)]
+        symbols = view.symbols()  # type: Tuple[sublime.Region, str]
         desired_symbols = [
             symbol for symbol in symbols
             if self.in_region(symbol, sel_end_region)
         ]
 
         if not desired_symbols:
-            return
+            return []
 
-        desired_symbols.reverse()
+        return list(reversed(desired_symbols))
 
+    def parse_symbols(self, desired_symbols):  # type: (List[Tuple[sublime.Region, str]]) -> Tuple
         target_symbol = desired_symbols.pop(0)
-        symbol_path = deque()
         _, target_line = target_symbol
+        return (target_symbol, target_line, desired_symbols)
 
-        if self.has_index(target_symbol):
-            target_indent = self.get_indent(target_line)
+    def build_symbols(self, target_line, symbol_list):  # type: (str, List[Tuple[sublime.Region, str]]) -> List
+        symbol_path = deque()  # type: Deque
+        target_indent = self.get_indent(target_line)
 
-            for region, line in desired_symbols:
-                curr_indent = self.get_indent(line)
+        for region, line in symbol_list:
+            curr_indent = self.get_indent(line)
 
-                if curr_indent == 0:
-                    symbol_path.appendleft(line.strip())
-                    break
-                elif curr_indent < target_indent:
-                    symbol_path.appendleft(line.strip())
+            # Break out of loop when we encounter a class
+            if curr_indent == 0:
+                symbol_path.appendleft(line.strip())
+                break
+            elif curr_indent < target_indent:
+                symbol_path.appendleft(line.strip())
 
-                target_indent = curr_indent
+            target_indent = curr_indent
 
-            symbol_path.append(target_line.strip())
+        symbol_path.append(target_line.strip())
 
-            symbol_names = [self._get_symbolname(line) for line in symbol_path]
-            target_name = symbol_names.pop()
+        symbol_names = [self.get_symbolname(line) for line in symbol_path]
+        target_name = symbol_names.pop()
 
-            symbol_names.append(self._highlight_target(target_name))
+        symbol_names.append(self.highlight_target(target_name))
 
-            sublime.status_message('[ {} ]'.format(self._format_symbolnames(symbol_names)))
-        else:
-            sublime.status_message('[ ( {} ) ]'.format(self._get_symbolname(target_line)))
+        return symbol_names
 
-    def in_region(self, symbol, end_region):
+    def in_region(self, symbol, end_region):  # type: (Tuple[sublime.Region, str], int) -> bool
         region, _ = symbol
         start_region = region.a
 
         return end_region > start_region
 
-    def get_indent(self, line_str):
-        # type: (str) -> int
+    def get_indent(self, line_str):  # type: (str) -> int
         return len(line_str) - len(line_str.lstrip())
 
-    def has_index(self, symbol):
-        # type: (tuple(sublime.Region, str)) -> bool
+    def has_index(self, symbol):  # type: (Tuple[sublime.Region, str]) -> bool
         _, line = symbol
 
         return self.get_indent(line) > 0
 
-    def _get_symbolname(self, line):
-        # type: (str) -> str
-        if 'class' in line:
-            match = self.symbolname_regex_1.match(line)
-        else:
-            match = self.symbolname_regex_2.match(line)
+    def highlight_target(self, symbol_name):
+        return '{}'.format(symbol_name)
 
-        return match.group(2) if match is not None else 'Unknown'
-
-    def _highlight_target(self, symbol_name):
-        return '( {} )'.format(symbol_name)
-
-    def _format_symbolnames(self, symbol_path):
-        # type: (List[str]) -> str
+    def format_symbolnames(self, symbol_path):  # type: (List[str]) -> str
         return ' ↦ '.join(symbol_path)
+
+    def on_selection_helper(self, view):  # type: (sublime.View) -> None
+
+        if not get_syntax(view) == self.SYNTAX_NAME:
+            return
+
+        desired_symbols = self.get_desired_symbols(view)
+
+        if not desired_symbols:
+            return
+
+        target_symbol, target_line, symbol_list = self.parse_symbols(desired_symbols)
+
+        if self.has_index(target_symbol):
+            symbol_names = self.build_symbols(target_line, symbol_list)
+            message = '[ {} ]'.format(self.format_symbolnames(symbol_names))
+        else:
+            message = '[ {} ]'.format(self.get_symbolname(target_line))
+
+        sublime.status_message(message)
+
+    def get_symbolname(self, line):  # type: (str) -> str
+        raise NotImplementedError
