@@ -116,30 +116,6 @@ class StatusSymbol():
         raise NotImplementedError
 
 
-class PythonSyntax(StatusSymbol, sublime_plugin.EventListener):
-    """docstring for PythonSyntax"""
-
-    SYNTAX_NAME = 'Python'
-    CLASS_REGEX = re.compile(r'^(?P<class_name>\w+)(?P<parenthesis>\((\w,?\w*.\w*?,?)*\))')
-    METHOD_REGEX = re.compile(r'^(?P<method_name>\w+)(?P<parenthesis>\(.\))')
-
-    def on_selection_modified(self, view):
-        self.on_selection_helper(view)
-
-    def _get_symbolname(self, line):  # type: (str) -> str
-        class_match = PythonSyntax.CLASS_REGEX.match(line)
-        method_match = PythonSyntax.METHOD_REGEX.match(line)
-
-        if class_match:
-            return class_match.group('class_name')
-        elif method_match:
-            return '{}()'.format(method_match.group('method_name'))
-        elif ':' in line:
-            return line.replace(':', '')
-
-        return 'Unkown'
-
-
 class MagicPythonSyntax(StatusSymbol, sublime_plugin.EventListener):
     """docstring for MagicPythonSyntax"""
 
@@ -153,6 +129,30 @@ class MagicPythonSyntax(StatusSymbol, sublime_plugin.EventListener):
     def _get_symbolname(self, line):  # type: (str) -> str
         class_match = MagicPythonSyntax.CLASS_REGEX.match(line)
         method_match = MagicPythonSyntax.METHOD_REGEX.match(line)
+
+        if class_match:
+            return class_match.group('class_name')
+        elif method_match:
+            return '{}()'.format(method_match.group('method_name'))
+        elif ':' in line:
+            return line.replace(':', '')
+
+        return 'Unkown'
+
+
+class PythonSyntax(StatusSymbol, sublime_plugin.EventListener):
+    """docstring for PythonSyntax"""
+
+    SYNTAX_NAME = 'Python'
+    CLASS_REGEX = re.compile(r'^(?P<class_name>\w+)(?P<parenthesis>\((\w,?\w*.\w*?,?)*\))')
+    METHOD_REGEX = re.compile(r'^(?P<method_name>\w+)(?P<parenthesis>\(.\))')
+
+    def on_selection_modified(self, view):
+        self.on_selection_helper(view)
+
+    def _get_symbolname(self, line):  # type: (str) -> str
+        class_match = PythonSyntax.CLASS_REGEX.match(line)
+        method_match = PythonSyntax.METHOD_REGEX.match(line)
 
         if class_match:
             return class_match.group('class_name')
