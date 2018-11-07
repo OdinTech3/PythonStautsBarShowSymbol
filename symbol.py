@@ -10,13 +10,6 @@ if sys.version_info > (3, 4):
     from typing import Tuple, List, Deque
 
 
-def is_python_syntax(view):
-    # type: (sublime.View) -> bool
-    syntax = view.settings().get('syntax')
-
-    return 'python' in syntax.lower()
-
-
 def get_syntax(view):  # type: (sublime.View) -> str
     syntax_path = view.settings().get('syntax')  # type: str
     path = syntax_path.rpartition('.')[0]  # type: str
