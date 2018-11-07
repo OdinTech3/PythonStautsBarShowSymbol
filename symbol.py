@@ -19,7 +19,7 @@ def is_python_syntax(view):
 
 def get_syntax(view):  # type: (sublime.View) -> str
     syntax_path = view.settings().get('syntax')  # type: str
-    path, *_ = syntax_path.rpartition('.')  # type: Tuple[str, str, str]
+    path = syntax_path.rpartition('.')[0]  # type: str
     syntax = os.path.basename(os.path.normpath(path))  # type: str
 
     return syntax
