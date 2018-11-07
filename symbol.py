@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+from collections import deque
 import sublime
 import sublime_plugin
 import re
-from collections import deque
+import sys
+
+if sys.version_info > (3, 4):
+    from typing import Tuple, List, Deque
 
 
 def is_python_syntax(view):
