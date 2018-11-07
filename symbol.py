@@ -4,6 +4,7 @@ import sublime
 import sublime_plugin
 import re
 import sys
+import os
 
 if sys.version_info > (3, 4):
     from typing import Tuple, List, Deque
@@ -14,6 +15,14 @@ def is_python_syntax(view):
     syntax = view.settings().get('syntax')
 
     return 'python' in syntax.lower()
+
+
+def get_syntax(view):  # type: (sublime.View) -> str
+    syntax_path = view.settings().get('syntax')  # type: str
+    path, *_ = syntax_path.rpartition('.')  # type: Tuple[str, str, str]
+    syntax = os.path.basename(os.path.normpath(path))  # type: str
+
+    return syntax
 
 
 class StatusSymbol(sublime_plugin.EventListener):
