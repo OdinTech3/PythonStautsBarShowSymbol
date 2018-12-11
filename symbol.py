@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 from collections import deque
-import sublime
-import sublime_plugin
 import re
 import sys
 import os
 
+try:
+    import sublime
+    import sublime_plugin
+except ModuleNotFoundError:
+    pass
+
 if sys.version_info > (3, 4):
-    from typing import Tuple, List, Deque
+    from typing import Tuple, List, Deque  # noqa: F401
 
 
 def get_syntax(view):  # type: (sublime.View) -> str
