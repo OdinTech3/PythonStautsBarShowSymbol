@@ -5,10 +5,10 @@ import sys
 import os
 
 try:
+    from sublime_plugin import EventListener
     import sublime
-    import sublime_plugin
 except ModuleNotFoundError:
-    pass
+    EventListener = type('EventListener', (object, ), {})
 
 if sys.version_info > (3, 4):
     from typing import Tuple, List, Deque  # noqa: F401
@@ -113,7 +113,7 @@ class StatusSymbol():
         raise NotImplementedError
 
 
-class MagicPythonSyntax(StatusSymbol, sublime_plugin.EventListener):
+class MagicPythonSyntax(StatusSymbol, EventListener):
     """docstring for MagicPythonSyntax"""
 
     SYNTAX_NAME = 'MagicPython'
@@ -137,7 +137,7 @@ class MagicPythonSyntax(StatusSymbol, sublime_plugin.EventListener):
         return 'Unkown'
 
 
-class PythonSyntax(StatusSymbol, sublime_plugin.EventListener):
+class PythonSyntax(StatusSymbol, EventListener):
     """docstring for PythonSyntax"""
 
     SYNTAX_NAME = 'Python'
