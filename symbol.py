@@ -11,7 +11,7 @@ except ModuleNotFoundError:
     EventListener = type('EventListener', (object, ), {})
 
 if sys.version_info > (3, 4):
-    from typing import Tuple, List, Deque  # noqa: F401
+    from typing import Tuple, List, Deque, Iterable  # noqa: F401
 
 
 def get_syntax(view):  # type: (sublime.View) -> str
@@ -28,7 +28,7 @@ class StatusSymbol():
     def get_desired_symbols(self, view):  # type: (sublime.View) -> List[Tuple[sublime.Region, str]]
         selection = view.sel()  # type: sublime.Selection[sublime.Region]
         sel_end_region = selection[0].b  # type: int
-        symbols = view.symbols()  # type: Tuple[sublime.Region, str]
+        symbols = view.symbols()  # type: Iterable[Tuple[sublime.Region, str]]
         desired_symbols = [
             symbol for symbol in symbols
             if self.in_region(symbol, sel_end_region)
