@@ -105,11 +105,11 @@ class StatusSymbol():
             symbol_names = self.build_symbols(target_line, symbol_list)
             message = '[ {} ]'.format(self.format_symbolnames(symbol_names))
         else:
-            message = '[ {} ]'.format(self.get_symbolname(target_line))
+            message = '[ {} ]'.format(self._get_symbolname(target_line))
 
         sublime.status_message(message)
 
-    def get_symbolname(self, line):  # type: (str) -> str
+    def _get_symbolname(self, line):  # type: (str) -> str
         raise NotImplementedError
 
 
