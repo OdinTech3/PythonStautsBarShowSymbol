@@ -105,11 +105,11 @@ class StatusSymbol():
             symbol_names = self.build_symbols(target_line, symbol_list)
             message = '[ {} ]'.format(self.format_symbolnames(symbol_names))
         else:
-            message = '[ {} ]'.format(self._get_symbolname(target_line))
+            message = '[ {} ]'.format(self.get_symbolname(target_line))
 
         sublime.status_message(message)
 
-    def _get_symbolname(self, line):  # type: (str) -> str
+    def get_symbolname(self, line):  # type: (str) -> str
         raise NotImplementedError
 
 
@@ -123,7 +123,7 @@ class MagicPythonSyntax(StatusSymbol, EventListener):
     def on_selection_modified(self, view):
         self.on_selection_helper(view)
 
-    def _get_symbolname(self, line):  # type: (str) -> str
+    def get_symbolname(self, line):  # type: (str) -> str
         class_match = MagicPythonSyntax.CLASS_REGEX.match(line)
         method_match = MagicPythonSyntax.METHOD_REGEX.match(line)
 
@@ -147,7 +147,7 @@ class PythonSyntax(StatusSymbol, EventListener):
     def on_selection_modified(self, view):
         self.on_selection_helper(view)
 
-    def _get_symbolname(self, line):  # type: (str) -> str
+    def get_symbolname(self, line):  # type: (str) -> str
         class_match = PythonSyntax.CLASS_REGEX.match(line)
         method_match = PythonSyntax.METHOD_REGEX.match(line)
 
