@@ -1,1 +1,1 @@
-from .symbol import StatusSymbol  # noqa F401
+from .symbol import StatusSymbol, PythonSyntax, MagicPythonSyntax  # noqa F401

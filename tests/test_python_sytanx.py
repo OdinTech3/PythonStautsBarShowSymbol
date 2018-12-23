@@ -1,5 +1,5 @@
 import pytest
-from StatusBarSymbols import StatusSymbol
+from StatusBarSymbols import StatusSymbol, PythonSyntax
 from dataclasses import dataclass
 from typing import Tuple, Iterable
 
@@ -39,6 +39,12 @@ class View():
 def status_symbol():
     '''Returns a instance of StatusSymbol class'''
     return StatusSymbol()
+
+
+@pytest.fixture
+def python_syntax():
+    '''Returns a instance of PythonSyntax class'''
+    return PythonSyntax()
 
 
 def test_parse_symbols(status_symbol: StatusSymbol) -> None:
@@ -116,3 +122,31 @@ class TestDesiredSymbols:
         ]))
 
         assert status_symbol.get_desired_symbols(view) == expected
+
+
+class TestPythonSyntax:
+    @pytest.mark.parametrize("test_input, expected", [
+        ('Foo:', 'Foo'),
+        ('Foo:', 'Foo'),
+        ('Foo(A, B)', 'Foo'),
+        ('bar(…)', 'bar()'),
+        ('bar(…)', 'bar()'),
+        ('bar2(…)', 'bar2()'),
+        ('_bar3(…)', '_bar3()'),
+        ('Foo2(A, b, C, D, E)', 'Foo2'),
+        pytest.param(
+            '_bar_method(...)',
+            '_bar_method()',
+            marks=pytest.mark.xfail(reason='triple dots should be \u2026')),
+    ])
+    def test_get_symbolname(self, test_input, expected, python_syntax: PythonSyntax):
+        assert python_syntax.get_symbolname(test_input) == expected
+
+    @pytest.mark.parametrize("test_input, expected", [
+        ('Foo', 'Unknown'),
+        ('Foo(', 'Unknown'),
+        ('Foo)', 'Unknown'),
+        ('asdasdsdas', 'Unknown'),
+    ])
+    def test_get_symbolname_on_invalid_inputs(self, test_input, expected, python_syntax: PythonSyntax):
+        assert python_syntax.get_symbolname(test_input) == expected
