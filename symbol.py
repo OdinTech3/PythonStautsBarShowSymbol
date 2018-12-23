@@ -134,7 +134,7 @@ class MagicPythonSyntax(StatusSymbol, EventListener):
         elif ':' in line:
             return line.replace(':', '')
 
-        return 'Unkown'
+        return 'Unknown'
 
 
 class PythonSyntax(StatusSymbol, EventListener):
@@ -158,4 +158,4 @@ class PythonSyntax(StatusSymbol, EventListener):
         elif ':' in line:
             return line.replace(':', '')
 
-        return 'Unkown'
+        return 'Unknown'
