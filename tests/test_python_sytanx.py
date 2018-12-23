@@ -51,10 +51,9 @@ def test_parse_symbols(status_symbol: StatusSymbol) -> None:
     view = View(Selection(4), symbols)
 
     desired_symbols = status_symbol.get_desired_symbols(view)
-    parsed_symbol = status_symbol.parse_symbols(list(desired_symbols))
+    parsed_symbol = status_symbol.parse_symbols(desired_symbols)
 
-    # print((desired_symbols[0], desired_symbols[0][1], desired_symbols[-2:]))
-    assert parsed_symbol == (desired_symbols[0], desired_symbols[0][1], desired_symbols[-2:])
+    assert parsed_symbol == (desired_symbols[0], desired_symbols[0][1], desired_symbols)
 
 
 class TestDesiredSymbols:
