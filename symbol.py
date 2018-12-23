@@ -40,7 +40,7 @@ class StatusSymbol():
         return list(reversed(desired_symbols))
 
     def parse_symbols(self, desired_symbols):  # type: (List[Tuple[sublime.Region, str]]) -> Tuple
-        target_symbol = desired_symbols.pop(0)
+        target_symbol = deque(desired_symbols).popleft()
         _, target_line = target_symbol
         return (target_symbol, target_line, desired_symbols)
 
