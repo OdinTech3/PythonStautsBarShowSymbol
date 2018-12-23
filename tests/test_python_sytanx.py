@@ -56,6 +56,22 @@ def test_parse_symbols(status_symbol: StatusSymbol) -> None:
     assert parsed_symbol == (desired_symbols[0], desired_symbols[0][1], desired_symbols)
 
 
+@pytest.mark.parametrize("test_input, expected", [
+    ('    f()', 4),
+    ('  using-tab', 2),
+    ('      using-tab', 6),
+    (' f()', 1),
+    ('        f()', 8),
+    ('            f()', 12),
+    ('  f()', 2),
+])
+def test_get_indent(test_input, expected, status_symbol: StatusSymbol):
+    """
+    Test `get_index` counts the number of spaces used for indentation correctly
+    """
+    assert status_symbol.get_indent(test_input) == expected
+
+
 class TestDesiredSymbols:
     def test_empty_desired_symbols(self, status_symbol) -> None:
         '''
