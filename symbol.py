@@ -40,9 +40,13 @@ class StatusSymbol():
         return list(reversed(desired_symbols))
 
     def parse_symbols(self, desired_symbols):  # type: (List[Tuple[sublime.Region, str]]) -> Tuple
-        target_symbol = deque(desired_symbols).popleft()
+        if len(desired_symbols) == 0:
+            return ()
+
+        target_symbol, *rest_symbols = desired_symbols
         _, target_line = target_symbol
-        return (target_symbol, target_line, desired_symbols)
+
+        return (target_symbol, target_line, rest_symbols)
 
     def build_symbols(self, target_line, symbol_list):  # type: (str, List[Tuple[sublime.Region, str]]) -> List
         symbol_path = deque()  # type: Deque

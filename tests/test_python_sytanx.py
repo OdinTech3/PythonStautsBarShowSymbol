@@ -58,8 +58,18 @@ def test_parse_symbols(status_symbol: StatusSymbol) -> None:
 
     desired_symbols = status_symbol.get_desired_symbols(view)
     parsed_symbol = status_symbol.parse_symbols(desired_symbols)
+    target_symbol, *rest_symbols = desired_symbols
 
-    assert parsed_symbol == (desired_symbols[0], desired_symbols[0][1], desired_symbols)
+    assert parsed_symbol == (target_symbol, target_symbol[1], rest_symbols)
+
+
+def test_empty_parse_symbols(status_symbol: StatusSymbol) -> None:
+    view = View(Selection(4), [])
+
+    desired_symbols = status_symbol.get_desired_symbols(view)
+    parsed_symbol = status_symbol.parse_symbols(desired_symbols)
+
+    assert parsed_symbol == ()
 
 
 @pytest.mark.parametrize("test_input, expected", [
@@ -150,3 +160,15 @@ class TestPythonSyntax:
     ])
     def test_get_symbolname_on_invalid_inputs(self, test_input, expected, python_syntax: PythonSyntax):
         assert python_syntax.get_symbolname(test_input) == expected
+
+    def test_empty_symbols_build_symbols(self, python_syntax: PythonSyntax):
+        '''
+        Test that empty symbol list from the view, an empty parsed symbol tuple will raise an error.
+        `build_symbols` can't execute becuse it needs the parsed symbols to not be empty
+        '''
+        view = View(Selection(4), [])
+        desired_symbols = python_syntax.get_desired_symbols(view)
+
+        with pytest.raises(ValueError):
+            target_symbol, target_line, symbol_list = python_syntax.parse_symbols(desired_symbols)
+            python_syntax.build_symbols(target_line, symbol_list)
