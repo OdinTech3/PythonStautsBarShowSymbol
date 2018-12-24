@@ -109,12 +109,8 @@ class StatusSymbol():
             return
 
         target_symbol, target_line, symbol_list = self.parse_symbols(desired_symbols)
-
-        if self.has_index(target_symbol):
-            symbol_names = self.build_symbols(target_line, symbol_list)
-            message = '[ {} ]'.format(self.format_symbolnames(symbol_names))
-        else:
-            message = '[ {} ]'.format(self.get_symbolname(target_line))
+        symbol_names = self.build_symbols(target_line, symbol_list)
+        message = '[ {} ]'.format(self.format_symbolnames(symbol_names))
 
         sublime.status_message(message)
 
