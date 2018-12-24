@@ -150,6 +150,12 @@ class PythonSyntax(StatusSymbol, EventListener):
     METHOD_REGEX = re.compile(r'^(?P<method_name>\w+)(?P<parenthesis>\(.\))')
 
     def on_selection_modified(self, view):
+        is_magicpython_enabled = 'MagicPython' not in view.settings().get('ignored_packages')
+
+        if is_magicpython_enabled:
+            sublime.status_message('[ Disable the MagicPython syntax package !!]')
+            return
+
         self.on_selection_helper(view)
 
     def get_symbolname(self, line):  # type: (str) -> str

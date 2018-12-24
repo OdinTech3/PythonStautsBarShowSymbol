@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Tuple, Iterable
+from typing import Tuple, Iterable, List
 
 
 @dataclass
@@ -21,13 +21,20 @@ class Selection(Region):
 
 
 class View():
-    def __init__(self, sel_region: Region, symbols: Symbols) -> None:
+    def __init__(self, sel_region: Region, symbols: Symbols, syntax_path: str = '') -> None:
         self._symbols = symbols
         self._sel_region = sel_region
+        self._syntax_path = syntax_path
+        self.ignored_packages: List = []
 
     def sel(self):
         return [self._sel_region]
 
-    def symbols(self):
+    def settings(self):
+        return {
+            'syntax': self._syntax_path,
+            'ignored_packages': self.ignored_packages,
+        }
 
+    def symbols(self):
         return self._symbols

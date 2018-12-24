@@ -1,7 +1,9 @@
 import pytest
+from unittest.mock import Mock
 from StatusBarSymbols import StatusSymbol, PythonSyntax
 from StatusBarSymbols.tests.cases import View, Selection, Region
 from StatusBarSymbols.tests.cases.python_symbols import PYTHON_SYNTAX_SYMBOLS
+import StatusBarSymbols.symbol as symbol
 
 
 @pytest.fixture
@@ -161,3 +163,42 @@ class TestPythonSyntax:
         target_symbol, target_line, symbol_list = python_syntax.parse_symbols(desired_symbols)
 
         assert python_syntax.build_symbols(target_line, symbol_list) == expected
+
+    def test_symbol_message(self, python_syntax: PythonSyntax):
+        symbol.sublime = type('sublime', (object,), {'status_message': None})
+        symbol.sublime.status_message = Mock(side_effect=lambda msg: print(msg))
+
+        symbols = [
+            (Region(0, 1), 'Foo:'),
+            (Region(2, 3), '    method1(…)'),
+            (Region(3, 4), '    method2(…)'),
+        ]
+
+        view = View(Selection(4), symbols, 'Packages/Python/Python.sublime-syntax')
+
+        view.ignored_packages.append('MagicPython')
+
+        python_syntax.on_selection_modified(view)
+
+        symbol.sublime.status_message.assert_called_with('[ Foo ↦ method2() ]')
+
+    def test_symbol_message_on_invalid_syntax(self, python_syntax: PythonSyntax):
+        '''
+            Test that when using the inbuilt Python Syntax as primary syntax and
+            MagicPython syntax is not disabled (added to the ignored package list),
+            a status bar messaged is shown saying that MagicPython should be disabled
+        '''
+        symbol.sublime = type('sublime', (object,), {'status_message': None})
+        symbol.sublime.status_message = Mock(side_effect=lambda msg: print(msg))
+
+        symbols = [
+            (Region(0, 1), 'Foo:'),
+            (Region(2, 3), '    method1(…)'),
+            (Region(3, 4), '    method2(…)'),
+        ]
+
+        view = View(Selection(4), symbols, 'Packages/Python/Python.sublime-syntax')
+
+        python_syntax.on_selection_modified(view)
+
+        symbol.sublime.status_message.assert_called_with('[ Disable the MagicPython syntax package !!]')
