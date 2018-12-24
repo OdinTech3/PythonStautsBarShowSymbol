@@ -57,6 +57,19 @@ def test_get_indent(test_input, expected, status_symbol: StatusSymbol):
     assert status_symbol.get_indent(test_input) == expected
 
 
+def test_exception_get_symbolname():
+    '''
+        Test that `get_symbolname` from a class that inherits from StatusSymbol
+        raises an exception if not implemented
+    '''
+
+    class ClassA(StatusSymbol):
+        pass
+
+    with pytest.raises(NotImplementedError):
+        ClassA().get_symbolname('ClassA()')
+
+
 class TestDesiredSymbols:
     def test_empty_desired_symbols(self, status_symbol: StatusSymbol) -> None:
         '''
