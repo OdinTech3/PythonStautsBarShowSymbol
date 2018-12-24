@@ -67,7 +67,7 @@ class StatusSymbol():
             elif curr_indent < target_indent:
                 symbol_path.appendleft(line.strip())
 
-            target_indent = curr_indent
+                target_indent = curr_indent
 
         symbol_path.append(target_line.strip())
 
