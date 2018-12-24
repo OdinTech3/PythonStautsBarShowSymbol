@@ -1,38 +1,7 @@
 import pytest
 from StatusBarSymbols import StatusSymbol, PythonSyntax
-from dataclasses import dataclass
-from typing import Tuple, Iterable
-
-
-@dataclass
-class Region:
-    a: int = 0
-    b: int = 0
-
-
-class Selection(Region):
-    """
-    Represents the Region a mouse has clicked on the View
-    """
-
-    def __init__(self, x: int) -> None:
-        self.a = self.b = x
-
-
-Symbols = Iterable[Tuple[Region, str]]
-
-
-class View():
-    def __init__(self, sel_region: Region, symbols: Symbols) -> None:
-        self._symbols = symbols
-        self._sel_region = sel_region
-
-    def sel(self):
-        return [self._sel_region]
-
-    def symbols(self):
-
-        return self._symbols
+from StatusBarSymbols.tests.cases import View, Selection, Region
+from StatusBarSymbols.tests.cases.python_symbols import PYTHON_SYNTAX_SYMBOLS
 
 
 @pytest.fixture
@@ -172,3 +141,10 @@ class TestPythonSyntax:
         with pytest.raises(ValueError):
             target_symbol, target_line, symbol_list = python_syntax.parse_symbols(desired_symbols)
             python_syntax.build_symbols(target_line, symbol_list)
+
+    @pytest.mark.parametrize("test_input, expected", PYTHON_SYNTAX_SYMBOLS)
+    def test_symbols_build_symbols(self, test_input, expected, python_syntax: PythonSyntax):
+        desired_symbols = python_syntax.get_desired_symbols(test_input)
+        target_symbol, target_line, symbol_list = python_syntax.parse_symbols(desired_symbols)
+
+        assert python_syntax.build_symbols(target_line, symbol_list) == expected

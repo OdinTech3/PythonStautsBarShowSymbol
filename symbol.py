@@ -52,6 +52,11 @@ class StatusSymbol():
         symbol_path = deque()  # type: Deque
         target_indent = self.get_indent(target_line)
 
+        if target_indent == 0:
+            target_name = self.get_symbolname(target_line.strip())
+
+            return [self.highlight_target(target_name)]
+
         for region, line in symbol_list:
             curr_indent = self.get_indent(line)
 
