@@ -58,7 +58,7 @@ def test_get_indent(test_input, expected, status_symbol: StatusSymbol):
 
 
 class TestDesiredSymbols:
-    def test_empty_desired_symbols(self, status_symbol) -> None:
+    def test_empty_desired_symbols(self, status_symbol: StatusSymbol) -> None:
         '''
             Test that an empty symbols list produces an empty list of desired symbols
         '''
@@ -66,7 +66,7 @@ class TestDesiredSymbols:
 
         assert status_symbol.get_desired_symbols(view) == []
 
-    def test_non_empty_desired_symbols(self, status_symbol) -> None:
+    def test_non_empty_desired_symbols(self, status_symbol: StatusSymbol) -> None:
         '''
             Test that an non empty symbols list produces the same symbol list but reveresed
         '''
@@ -81,7 +81,7 @@ class TestDesiredSymbols:
 
         assert status_symbol.get_desired_symbols(view) == expected
 
-    def test_filtered_desired_symbols(self, status_symbol) -> None:
+    def test_filtered_desired_symbols(self, status_symbol: StatusSymbol) -> None:
         '''
             Test that an non empty symbols list with a specific selected region
             produces a reversed symbol list with symbols which have a starting region
