@@ -99,10 +99,6 @@ class StatusSymbol():
         return ' ↦ '.join(symbol_path)
 
     def on_selection_helper(self, view):  # type: (sublime.View) -> None
-
-        if not get_syntax(view) == self.SYNTAX_NAME:
-            return
-
         desired_symbols = self.get_desired_symbols(view)
 
         if not desired_symbols:
@@ -126,6 +122,9 @@ class MagicPythonSyntax(StatusSymbol, EventListener):
     METHOD_REGEX = re.compile(r'^(?P<method_name>\w+)(?P<parenthesis>\((\s*([^)]+?)\s*)?\))')
 
     def on_selection_modified(self, view):
+        if not get_syntax(view) == self.SYNTAX_NAME:
+            return
+
         self.on_selection_helper(view)
 
     def get_symbolname(self, line):  # type: (str) -> str
@@ -150,6 +149,9 @@ class PythonSyntax(StatusSymbol, EventListener):
     METHOD_REGEX = re.compile(r'^(?P<method_name>\w+)(?P<parenthesis>\(.\))')
 
     def on_selection_modified(self, view):
+        if not get_syntax(view) == self.SYNTAX_NAME:
+            return
+
         is_magicpython_enabled = 'MagicPython' not in view.settings().get('ignored_packages')
 
         if is_magicpython_enabled:

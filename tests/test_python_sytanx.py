@@ -202,3 +202,27 @@ class TestPythonSyntax:
         python_syntax.on_selection_modified(view)
 
         symbol.sublime.status_message.assert_called_with('[ Disable the MagicPython syntax package !!]')
+
+    @pytest.mark.parametrize("test_input", [
+        'Packages/Text/Plain text.tmLanguage',
+        'Packages/MagicPython/grammars/MagicPython.tmLanguage',
+    ])
+    def test_no_message_on_invalid_syntax(self, test_input, python_syntax: PythonSyntax):
+        '''
+            Test that in the presence of a syntax that is not
+            'Packages/Python/Python.sublime-syntax', getting symbols will not work
+        '''
+        symbol.sublime = type('sublime', (object,), {'status_message': None})
+        symbol.sublime.status_message = Mock(side_effect=lambda msg: print(msg))
+
+        symbols = [
+            (Region(0, 1), 'Foo:'),
+            (Region(2, 3), '    method1(…)'),
+            (Region(3, 4), '    method2(…)'),
+        ]
+
+        view = View(Selection(4), symbols, test_input)
+
+        python_syntax.on_selection_modified(view)
+
+        assert python_syntax.on_selection_modified(view) is None
